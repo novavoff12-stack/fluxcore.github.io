@@ -394,12 +394,12 @@ const Login: NextPage = () => {
 						<p className="text-xs text-zinc-400 dark:text-zinc-400 mt-1 mb-2">
 							Required for group member sync. Create one at{" "}
 							<a
-								href="https://create.roblox.com/credentials"
+								href="https://create.roblox.com/dashboard/credentials"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="text-blue-500 hover:underline"
 							>
-								create.roblox.com/credentials
+								create.roblox.com/dashboard/credentials
 							</a>
 							{" "}with the following permissions:
 						</p>
