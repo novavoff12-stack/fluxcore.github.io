@@ -35,9 +35,7 @@ const Color: FC<props> = (props) => {
   const triggerToast = props.triggerToast;
   const [workspace, setWorkspace] = useRecoilState(workspacestate);
   const [showLayoutEditor, setShowLayoutEditor] = useState(false);
-
-  // Normalize layout so it always matches enabled widgets
-  const currentLayout = useMemo(() => {
+  const initialLayout = useMemo(() => {
     const widgets = Array.isArray(workspace.settings?.widgets)
       ? workspace.settings.widgets
       : [];
@@ -61,13 +59,12 @@ const Color: FC<props> = (props) => {
         maxH: existing?.maxH,
       };
     });
-  }, [workspace.settings?.widgets, workspace.settings?.layout]);
+  }, [workspace.settings?.layout]);
 
-  const [layout, setLayout] = useState<WidgetLayout[]>(currentLayout);
-
+  const [layout, setLayout] = useState<WidgetLayout[]>(initialLayout);
   useEffect(() => {
-    setLayout(currentLayout);
-  }, [currentLayout]);
+    setLayout(initialLayout);
+  }, [initialLayout]);
 
   const updateHome = async () => {
     try {
@@ -110,7 +107,8 @@ const Color: FC<props> = (props) => {
   const toggle = (name: string) => {
     const widgetId = toggleAble[name];
     if (workspace.settings.widgets.includes(widgetId)) {
-      // Remove widget and its layout
+      const newLayout = layout.filter((item) => item.i !== widgetId);
+      setLayout(newLayout);
       setWorkspace({
         ...workspace,
         settings: {
@@ -120,18 +118,18 @@ const Color: FC<props> = (props) => {
           ),
         },
       });
-      setLayout(layout.filter((item) => item.i !== widgetId));
     } else {
-      // Add widget with default layout
-      const newWidget = {
+      const newWidget: WidgetLayout = {
         i: widgetId,
-        x: (workspace.settings.widgets.length % 2) * 6,
-        y: Math.floor(workspace.settings.widgets.length / 2) * 4,
+        x: (layout.length % 2) * 6,
+        y: Math.floor(layout.length / 2) * 4,
         w: 6,
         h: 4,
         minW: 4,
         minH: 3,
       };
+      const newLayout = [...layout, newWidget];
+      setLayout(newLayout);
       setWorkspace({
         ...workspace,
         settings: {
@@ -139,7 +137,6 @@ const Color: FC<props> = (props) => {
           widgets: [...workspace.settings.widgets, widgetId],
         },
       });
-      setLayout([...layout, newWidget]);
     }
   };
 

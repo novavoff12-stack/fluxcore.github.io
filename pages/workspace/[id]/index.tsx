@@ -284,7 +284,7 @@ const Home: pageWithLayout = () => {
                       </div>
                     </div>
 
-                    <div className="p-6 overflow-auto" style={{ maxHeight: 'calc(100% - 90px)' }}>
+                    <div className="p-6">
                       <Widget />
                     </div>
                   </div>

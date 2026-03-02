@@ -24,7 +24,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@popperjs/core": "^2.11.8",
-    "@prisma/adapter-pg": "^7.4.0",
+    "@prisma/adapter-pg": "^7.4.2",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tabler/icons": "^2.47.0",
     "@tabler/icons-react": "^3.34.0",
@@ -97,7 +97,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
-    "@prisma/client": "^7.4.0",
+    "@prisma/client": "^7.4.2",
     "@types/file-type": "^10.6.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/moment-timezone": "^0.5.30",
@@ -112,7 +112,7 @@
     "eslint-config-next": "^15.3.6",
     "js-yaml": "^4.1.1",
     "postcss": "^8.4.38",
-    "prisma": "^7.4.0",
+    "prisma": "^7.4.2",
     "tailwindcss": "^3.4.3",
     "tsx": "^4.21.0",
     "typescript": "^5.5.0"
@@ -129,14 +129,17 @@
     "overrides": {
       "qs": ">=6.14.2",
       "markdown-it": ">=14.1.1",
-      "hono@<4.11.7": ">=4.11.7",
+      "hono@<4.11.10": ">=4.11.10",
       "lodash@>=4.0.0 <=4.17.22": ">=4.17.23",
       "diff@<4.0.4": ">=4.0.4",
       "diff@>=5.0.0 <5.2.2": ">=5.2.2",
       "undici@>=7.0.0 <7.18.2": ">=7.18.2",
-      "fast-xml-parser": ">=5.3.6",
+      "fast-xml-parser": ">=5.3.8",
       "ajv": ">=8.18.0",
-      "webpack": ">=5.104.1"
+      "webpack": ">=5.104.1",
+      "minimatch@<3.1.4": "3.1.4",
+      "minimatch@>=9.0.0 <=9.0.5": "9.0.7",
+      "serialize-javascript@<=7.0.2": ">=7.0.3"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
