@@ -29,6 +29,17 @@ type Data = {
 			noticesEnabled: boolean
 			policiesEnabled: boolean
 			widgets: string[]
+			layout?: Array<{
+				i: string
+				x: number
+				y: number
+				w: number
+				h: number
+				minW?: number
+				minH?: number
+				maxW?: number
+				maxH?: number
+			}>
 		}
 	}
 }
@@ -163,7 +174,8 @@ export async function handler(
 			alliesEnabled: (await getConfig('allies', workspace.groupId))?.enabled || false,
 			noticesEnabled: (await getConfig('notices', workspace.groupId))?.enabled || false,
 			policiesEnabled: (await getConfig('policies', workspace.groupId))?.enabled || false,
-			widgets: (await getConfig('home', workspace.groupId))?.widgets || []
+			widgets: (await getConfig('home', workspace.groupId))?.widgets || [],
+			layout: (await getConfig('home', workspace.groupId))?.layout || undefined
 		}
 	} })
 }

@@ -99,29 +99,21 @@ export default function Birthdays() {
 
   if (usersWithDays.length === 0) {
     return (
-      <div className="bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-xl shadow-sm p-4 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <IconGift className="w-5 h-5 text-primary" />
-          </div>
-          <span className="text-lg font-medium text-zinc-900 dark:text-white">Upcoming Birthdays</span>
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <IconGift className="w-8 h-8 text-primary" />
         </div>
-        <p className="text-center py-4 text-zinc-500 dark:text-zinc-400">No upcoming birthdays in the next 7 days</p>
+        <p className="text-lg font-medium text-zinc-900 dark:text-white mb-1">No upcoming birthdays</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">No upcoming birthdays in the next 7 days</p>
       </div>
     );
   }
 
   return (
-    <div ref={cardRef} className="z-0 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-xl shadow-sm p-4 flex flex-col gap-4 mb-6 relative overflow-hidden">
+    <div ref={cardRef} className="relative flex flex-col gap-4">
       {showConfetti && cardSize.width > 0 && cardSize.height > 0 && (
         <Confetti width={cardSize.width} height={cardSize.height} numberOfPieces={300} recycle={true} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }} />
       )}
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <IconGift className="w-5 h-5 text-primary" />
-        </div>
-        <span className="text-lg font-medium text-zinc-900 dark:text-white">Upcoming Birthdays</span>
-      </div>
       <div className="flex flex-col gap-3">
         {usersWithDays.map(user => (
           <div
