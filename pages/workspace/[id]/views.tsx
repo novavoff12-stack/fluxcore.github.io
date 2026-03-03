@@ -377,6 +377,30 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
         return rankA - rankB;
       },
     }),
+    columnHelper.accessor("departments", {
+      header: "Department",
+      cell: (row) => {
+        const departments = row.getValue();
+        if (!departments || departments.length === 0) {
+          return <p className="dark:text-white text-zinc-400">-</p>;
+        }
+        return (
+          <div className="flex flex-wrap gap-1">
+            {departments.slice(0, 2).map((dept: string, idx: number) => (
+              <span
+                key={idx}
+                className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+              >
+                {dept}
+              </span>
+            ))}
+            {departments.length > 2 && (
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">+{departments.length - 2}</span>
+            )}
+          </div>
+        );
+      },
+    }),
     columnHelper.accessor("hostedSessions", {
       header: "Hosted sessions",
       cell: (row) => {
@@ -481,6 +505,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
   const [columnVisibility, setColumnVisibility] = useState({
     info: true,
     rankID: true,
+    departments: false,
     book: true,
     minutes: true,
     lastPeriodMinutes: false,
@@ -680,6 +705,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
     setColumnVisibility({
       info: true,
       rankID: true,
+      departments: false,
       book: true,
       minutes: true,
       lastPeriodMinutes: false,
@@ -768,6 +794,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
         setColumnVisibility({
           info: true,
           rankID: true,
+          departments: false,
           book: true,
           minutes: true,
           lastPeriodMinutes: false,
@@ -1009,6 +1036,8 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
       return "Wall Posts";
     } else if (columnId == "rankName" || columnId == "rankID") {
       return "Rank";
+    } else if (columnId == "departments") {
+      return "Department";
     } else if (columnId == "inactivityNotices") {
       return "Inactivity notices";
     } else if (columnId == "minutes") {

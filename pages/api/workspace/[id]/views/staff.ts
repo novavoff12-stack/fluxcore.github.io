@@ -542,7 +542,7 @@ export default withPermissionCheck(
         const totalActiveMs =
           (ms.length ? ms.reduce((p, c) => p + c) : 0) + totalAdjustmentMs;
         const userDepartments = user.workspaceMemberships?.[0]?.departmentMembers?.map(
-          (dm: any) => dm.department.id
+          (dm: any) => dm.department.name
         ) || [];
         const userHistory = lastPeriodHistoryByUser.get(userKey);
         const lastPeriodMinutes = userHistory?.minutes ?? null;
