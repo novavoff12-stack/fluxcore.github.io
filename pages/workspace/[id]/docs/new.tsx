@@ -23,6 +23,7 @@ import {
   IconCode,
   IconExternalLink,
   IconAlertTriangle,
+  IconChevronDown,
 } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { withPermissionCheckSsr } from "@/utils/permissionsManager";
@@ -90,6 +91,8 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [linkText, setLinkText] = useState("");
+  const [showRoles, setShowRoles] = useState(false);
+  const [showDepartments, setShowDepartments] = useState(false);
 
   const markdownRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -315,56 +318,94 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
                       </p>
                     </div>
                   </div>
-                  <div className="space-y-2 mb-6">
-                    <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
-                      Roles
-                    </h3>
-                    {roles.map((role: any) => (
-                      <label
-                        key={role.id}
-                        className="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 cursor-pointer transition-all group"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedRoles.includes(role.id)}
-                          onChange={() => toggleRole(role.id)}
-                          className="w-4 h-4 text-primary rounded border-zinc-300 dark:border-zinc-600 focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
-                        />
-                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
-                          {role.name}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-
-                  <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4">
-                    <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
-                      Departments
-                    </h3>
-                    <div className="space-y-2">
-                      {departments && departments.length > 0 ? (
-                        departments.map((department: any) => (
+                  <div className="mb-6 relative">
+                    <button
+                      onClick={() => setShowRoles(!showRoles)}
+                      className="w-full flex items-center justify-between p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                          Roles
+                        </h3>
+                        {selectedRoles.length > 0 && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                            {selectedRoles.length}
+                          </span>
+                        )}
+                      </div>
+                      <IconChevronDown
+                        className={`w-4 h-4 text-zinc-500 transition-transform ${showRoles ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {showRoles && (
+                      <div className="absolute top-full left-0 right-0 mt-2 max-h-60 overflow-y-auto space-y-1 p-2 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 shadow-lg z-50">
+                        {roles.map((role: any) => (
                           <label
-                            key={department.id}
-                            className="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 cursor-pointer transition-all group"
+                            key={role.id}
+                            className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-all group"
                           >
                             <input
                               type="checkbox"
-                              checked={selectedDepartments.includes(department.id)}
-                              onChange={() => toggleDepartment(department.id)}
+                              checked={selectedRoles.includes(role.id)}
+                              onChange={() => toggleRole(role.id)}
                               className="w-4 h-4 text-primary rounded border-zinc-300 dark:border-zinc-600 focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
                             />
-                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
-                              {department.name}
+                            <span className="text-sm text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                              {role.name}
                             </span>
                           </label>
-                        ))
-                      ) : (
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">
-                          No departments available.
-                        </p>
-                      )}
-                    </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4">
+                    {departments && departments.length > 0 ? (
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowDepartments(!showDepartments)}
+                          className="w-full flex items-center justify-between p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                              Departments
+                            </h3>
+                            {selectedDepartments.length > 0 && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                                {selectedDepartments.length}
+                              </span>
+                            )}
+                          </div>
+                          <IconChevronDown
+                            className={`w-4 h-4 text-zinc-500 transition-transform ${showDepartments ? 'rotate-180' : ''}`}
+                          />
+                        </button>
+                        {showDepartments && (
+                          <div className="absolute top-full left-0 right-0 mt-2 max-h-60 overflow-y-auto space-y-1 p-2 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 shadow-lg z-50">
+                            {departments.map((department: any) => (
+                              <label
+                                key={department.id}
+                                className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-all group"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedDepartments.includes(department.id)}
+                                  onChange={() => toggleDepartment(department.id)}
+                                  className="w-4 h-4 text-primary rounded border-zinc-300 dark:border-zinc-600 focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
+                                />
+                                <span className="text-sm text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                                  {department.name}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">
+                        No departments available.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
