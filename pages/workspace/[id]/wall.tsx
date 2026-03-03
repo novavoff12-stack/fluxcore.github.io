@@ -8,6 +8,21 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { withPermissionCheckSsr } from "@/utils/permissionsManager";
 import prisma from "@/utils/database";
 import type { wallPost } from "@prisma/client";
+
+type WallPostWithAuthor = wallPost & {
+	author: {
+		userid: string;
+		username: string | null;
+		picture: string | null;
+		rankId?: number | null;
+		rankName?: string | null;
+		departments?: Array<{
+			id: string;
+			name: string;
+			color: string | null;
+		}>;
+	};
+};
 import moment from "moment";
 import { withSessionSsr } from "@/lib/withSession";
 import toast, { Toaster } from "react-hot-toast";
@@ -34,9 +49,14 @@ const SANITIZE_OPTIONS = {
 
 export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
   async ({ query, req }) => {
+    const workspaceGroupId = parseInt(query.id as string);
+    const workspace = await prisma.workspace.findUnique({
+      where: { groupId: workspaceGroupId }
+    });
+    
     const posts = await prisma.wallPost.findMany({
       where: {
-        workspaceGroupId: parseInt(query.id as string),
+        workspaceGroupId: workspaceGroupId,
       },
       orderBy: {
         createdAt: "desc",
@@ -44,19 +64,84 @@ export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
       include: {
         author: {
           select: {
+            userid: true,
             username: true,
             picture: true,
-            ranks: true,
+            ranks: {
+              where: {
+                workspaceGroupId: workspaceGroupId
+              }
+            },
+            workspaceMemberships: {
+              where: {
+                workspaceGroupId: workspaceGroupId
+              },
+              include: {
+                departmentMembers: {
+                  include: {
+                    department: {
+                      select: {
+                        id: true,
+                        name: true,
+                        color: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
         },
       },
+    });
+
+    const roleIdToInfoMap = new Map<number, { rank: number; name: string }>();
+    const rolesByRank: any[] = [];
+    
+    if (workspace) {
+      const noblox = require('noblox.js');
+      const roles = await noblox.getRoles(workspace.groupId);
+      roles.sort((a: any, b: any) => a.rank - b.rank);
+      rolesByRank.push(...roles);
+      roles.forEach((role: any) => {
+        roleIdToInfoMap.set(role.id, { rank: role.rank, name: role.name });
+      });
+    }
+    
+    const postsWithDetails = posts.map(post => {
+      const rank = post.author.ranks?.[0];
+      let rankName = null;
+      
+      if (rank) {
+        const storedValue = Number(rank.rankId);
+        if (storedValue > 255) {
+          rankName = roleIdToInfoMap.get(storedValue)?.name || null;
+        } else {
+          const role = rolesByRank.find((r: any) => r.rank === storedValue);
+          rankName = role?.name || null;
+        }
+      }
+      
+      const departments = post.author.workspaceMemberships?.[0]?.departmentMembers?.map(dm => dm.department) || [];
+      
+      return {
+        ...post,
+        author: {
+          userid: post.author.userid,
+          username: post.author.username,
+          picture: post.author.picture,
+          rankId: rank ? Number(rank.rankId) : null,
+          rankName,
+          departments
+        }
+      };
     });
 
     const user = await prisma.user.findUnique({
       where: { userid: req.session.userid },
       include: {
         roles: {
-          where: { workspaceGroupId: parseInt(query.id as string) },
+          where: { workspaceGroupId: workspaceGroupId },
           orderBy: { isOwnerRole: "desc" },
         },
       },
@@ -67,10 +152,10 @@ export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
     return {
       props: {
         posts: JSON.parse(
-          JSON.stringify(posts, (key, value) =>
+          JSON.stringify(postsWithDetails, (key, value) =>
             typeof value === "bigint" ? value.toString() : value
           )
-        ) as typeof posts,
+        ) as WallPostWithAuthor[],
         userPermissions,
       },
     };
@@ -78,7 +163,7 @@ export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
 );
 
 type pageProps = {
-  posts: wallPost[];
+  posts: WallPostWithAuthor[];
   userPermissions: string[];
 };
 
@@ -286,13 +371,14 @@ const Wall: pageWithLayout<pageProps> = (props) => {
           <div className="flex items-start gap-4">
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center ${getRandomBg(
-                login.userId.toString()
+                login.userId.toString(),
+                login.username
               )}`}
             >
               <img
                 src={login.thumbnail}
                 alt="Your avatar"
-                className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-zinc-800"
                 style={{ background: "transparent" }}
               />
             </div>
@@ -404,22 +490,38 @@ const Wall: pageWithLayout<pageProps> = (props) => {
               <div className="flex items-start gap-4">
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center ${getRandomBg(
-                    post.authorId
+                    post.author.userid,
+                    post.author.username
                   )}`}
                 >
                   <img
                     alt="avatar headshot"
                     src={post.author.picture}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-zinc-800"
                     style={{ background: "transparent" }}
                   />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-zinc-900 dark:text-white">
-                        {post.author.username}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-zinc-900 dark:text-white">
+                          {post.author.username}
+                        </h3>
+                        {post.author.departments && post.author.departments.length > 0 && (
+                          <span 
+                            className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
+                            style={{ backgroundColor: post.author.departments[0].color || '#3b82f6' }}
+                          >
+                            {post.author.departments[0].name}
+                          </span>
+                        )}
+                      </div>
+                      {post.author.rankName && (
+                        <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-0.5">
+                          {post.author.rankName}
+                        </p>
+                      )}
                       <p className="text-sm text-zinc-500 dark:text-zinc-400">
                         {moment(post.createdAt).format(
                           "MMMM D, YYYY [at] h:mm A"

@@ -5,16 +5,58 @@ import { useRecoilState } from "recoil";
 import { workspacestate } from "@/state";
 import moment from "moment";
 import Button from "@/components/button";
-import type { wallPost, user } from "@/utils/database";
+import type { wallPost } from "@/utils/database";
 import { useRouter } from "next/router";
 import { IconChevronRight, IconMessage } from '@tabler/icons-react'
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 
+const BG_COLORS = [
+	"bg-rose-300",
+	"bg-lime-300",
+	"bg-teal-200",
+	"bg-amber-300",
+	"bg-rose-200",
+	"bg-lime-200",
+	"bg-green-100",
+	"bg-red-100",
+	"bg-yellow-200",
+	"bg-amber-200",
+	"bg-emerald-300",
+	"bg-green-300",
+	"bg-red-300",
+	"bg-emerald-200",
+	"bg-green-200",
+	"bg-red-200",
+];
+
+function getRandomBg(userid: number | string, username?: string) {
+	const key = `${userid ?? ""}:${username ?? ""}`;
+	let hash = 5381;
+	for (let i = 0; i < key.length; i++) {
+		hash = ((hash << 5) - hash) ^ key.charCodeAt(i);
+	}
+	const index = (hash >>> 0) % BG_COLORS.length;
+	return BG_COLORS[index];
+}
+
+type WallPostWithAuthor = wallPost & {
+	author: {
+		userid: string;
+		username: string | null;
+		picture: string | null;
+		rankId?: number | null;
+		rankName?: string | null;
+		departments?: Array<{
+			id: string;
+			name: string;
+			color: string | null;
+		}>;
+	};
+};
+
 const Wall: React.FC = () => {
-	const [posts, setPosts] = useState<(wallPost & {
-		author: user
-	})[]>([]);
+	const [posts, setPosts] = useState<WallPostWithAuthor[]>([]);
 	const router = useRouter();
 	React.useEffect(() => {
 		axios.get(`/api/workspace/${router.query.id}/home/wall`).then(res => {
@@ -53,20 +95,37 @@ const Wall: React.FC = () => {
 							className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
 						>
 							<div className="flex items-start gap-3">
-								<img 
-									alt={`${post.author.username}'s avatar`} 
-									src={String(post.author.picture)} 
-									className="rounded-lg h-10 w-10 bg-primary object-cover" 
-								/>
+								<div 
+									className={`rounded-lg h-10 w-10 flex items-center justify-center ${getRandomBg(post.author.userid|| '')}`}
+								>
+									<img 
+										alt={`${post.author.username}'s avatar`} 
+										src={String(post.author.picture)} 
+										className="rounded-lg h-10 w-10 object-cover border-2 border-white dark:border-zinc-800" 
+									/>
+								</div>
 								<div className="flex-1 min-w-0">
 									<div className="flex items-center gap-2">
 										<p className="font-medium text-zinc-900 dark:text-white truncate">
 											{post.author.username}
 										</p>
+										{post.author.departments && post.author.departments.length > 0 && (
+											<span 
+												className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
+												style={{ backgroundColor: post.author.departments[0].color || '#3b82f6' }}
+											>
+												{post.author.departments[0].name}
+											</span>
+										)}
 										<span className="text-sm text-zinc-500 dark:text-zinc-400">
 											{moment(post.createdAt).format("MMM D")}
 										</span>
 									</div>
+									{post.author.rankName && (
+										<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+											{post.author.rankName}
+										</p>
+									)}
 									<div className="prose text-zinc-800 dark:text-zinc-200 dark:prose-invert max-w-none mt-1">
 										<ReactMarkdown rehypePlugins={[rehypeSanitize]}>{post.content}</ReactMarkdown>
 									</div>

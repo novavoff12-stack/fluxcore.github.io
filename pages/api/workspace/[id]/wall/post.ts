@@ -182,26 +182,95 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
       }
     }
 
+    const workspaceGroupId = parseInt(req.query.id as string);
+    
     const post = await prisma.wallPost.create({
       data: {
         content,
         image: image || undefined,
         authorId: req.session.userid,
-        workspaceGroupId: parseInt(req.query.id as string),
+        workspaceGroupId: workspaceGroupId,
       },
       include: {
         author: {
           select: {
+            userid: true,
             username: true,
             picture: true,
+            ranks: {
+              where: {
+                workspaceGroupId: workspaceGroupId
+              }
+            },
+            workspaceMemberships: {
+              where: {
+                workspaceGroupId: workspaceGroupId
+              },
+              include: {
+                departmentMembers: {
+                  include: {
+                    department: {
+                      select: {
+                        id: true,
+                        name: true,
+                        color: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
         },
       },
     });
 
+    const workspace = await prisma.workspace.findUnique({
+      where: { groupId: workspaceGroupId }
+    });
+    
+    const roleIdToInfoMap = new Map<number, { rank: number; name: string }>();
+    const rolesByRank: any[] = [];
+    
+    if (workspace) {
+      const roles = await noblox.getRoles(workspace.groupId);
+      roles.sort((a, b) => a.rank - b.rank);
+      rolesByRank.push(...roles);
+      roles.forEach(role => {
+        roleIdToInfoMap.set(role.id, { rank: role.rank, name: role.name });
+      });
+    }
+    
+    const rank = post.author.ranks?.[0];
+    let rankName = null;
+    
+    if (rank) {
+      const storedValue = Number(rank.rankId);
+      if (storedValue > 255) {
+        rankName = roleIdToInfoMap.get(storedValue)?.name || null;
+      } else {
+        const role = rolesByRank.find(r => r.rank === storedValue);
+        rankName = role?.name || null;
+      }
+    }
+    
+    const departments = post.author.workspaceMemberships?.[0]?.departmentMembers?.map(dm => dm.department) || [];
+    
+    const postWithDetails = {
+      ...post,
+      author: {
+        userid: post.author.userid,
+        username: post.author.username,
+        picture: post.author.picture,
+        rankId: rank ? Number(rank.rankId) : null,
+        rankName,
+        departments
+      }
+    };
+
     // Log audit event for wall post creation
     logAudit(
-      parseInt(req.query.id as string),
+      workspaceGroupId,
       req.session.userid,
       'wall.post.create',
       'wall',
@@ -214,7 +283,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     return res.status(200).json({
       success: true,
       post: JSON.parse(
-        JSON.stringify(post, (key, value) =>
+        JSON.stringify(postWithDetails, (key, value) =>
           typeof value === "bigint" ? value.toString() : value
         )
       ),
