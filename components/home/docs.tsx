@@ -132,7 +132,7 @@ const Docs: React.FC = () => {
                       <img
                         src={document.owner?.picture || '/default-avatar.jpg'}
                         alt={`${document.owner?.username || 'Unknown'}'s avatar`}
-                        className="h-6 w-6 object-cover rounded-full border-2 border-white"
+                        className="h-6 w-6 object-cover rounded-full border-2 border-white dark:border-zinc-800"
                       />
                     </div>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">

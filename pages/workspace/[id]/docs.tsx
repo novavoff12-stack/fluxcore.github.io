@@ -152,6 +152,7 @@ export const getServerSideProps = withPermissionCheckSsr(
             select: {
               username: true,
               picture: true,
+			  userid: true,
             },
           },
         },
@@ -193,6 +194,7 @@ export const getServerSideProps = withPermissionCheckSsr(
       include: {
         owner: {
           select: {
+            userid: true,
             username: true,
             picture: true,
           },
@@ -215,7 +217,7 @@ export const getServerSideProps = withPermissionCheckSsr(
 );
 
 type pageProps = {
-  documents: (document & { owner: { username: string; picture: string } })[];
+  documents: (document & { owner: { userid: string; username: string; picture: string } })[];
   canCreate: boolean;
   canEdit: boolean;
   canDelete: boolean;
@@ -356,8 +358,7 @@ const Home: pageWithLayout<pageProps> = ({ documents, canCreate, canEdit, canDel
                       <div className="flex items-center gap-1.5">
                         <div
                           className={`h-5 w-5 rounded-full flex items-center justify-center overflow-hidden ${getRandomBg(
-                            "",
-                            document.owner?.username || ""
+                            document.owner?.userid?.toString() || ""
                           )}`}
                         >
                           <img
@@ -365,7 +366,7 @@ const Home: pageWithLayout<pageProps> = ({ documents, canCreate, canEdit, canDel
                               document.owner?.picture || "/default-avatar.jpg"
                             }
                             alt={`${document.owner?.username}'s avatar`}
-                            className="h-5 w-5 object-cover rounded-full border-2 border-white"
+                            className="h-5 w-5 object-cover rounded-full border-2 border-white dark:border-zinc-800"
                             onError={(e) => {
                               e.currentTarget.src = "/default-avatar.jpg";
                             }}

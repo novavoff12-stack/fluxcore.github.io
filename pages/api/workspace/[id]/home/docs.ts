@@ -55,6 +55,7 @@ export async function handler(
 			include: {
 				owner: {
 					select: { 
+						userid: true,
 						username: true,
 						picture: true
 					}
@@ -77,6 +78,7 @@ export async function handler(
 		include: {
 			owner: {
 				select: {
+					userid: true,
 					username: true,
 					picture: true,
 				}

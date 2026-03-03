@@ -97,6 +97,7 @@ export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
         include: {
           owner: {
             select: {
+              userid: true,
               username: true,
               picture: true,
             },
@@ -236,14 +237,13 @@ const Settings: pageWithLayout<Props> = ({ document, canEdit, canDelete }) => {
             <div className="flex items-center gap-2">
               <div
                 className={`h-5 w-5 rounded-full flex items-center justify-center overflow-hidden ${getRandomBg(
-                  "",
-                  document.owner?.username || ""
+                  document.owner?.userid?.toString() || ""
                 )}`}
               >
                 <img
                   src={document.owner?.picture || "/default-avatar.jpg"}
                   alt={`${document.owner?.username}'s avatar`}
-                  className="h-5 w-5 object-cover rounded-full border-2 border-white"
+                  className="h-5 w-5 object-cover rounded-full border-2 border-white dark:border-zinc-800"
                 />
               </div>
               <span>Created by {document.owner.username}</span>
