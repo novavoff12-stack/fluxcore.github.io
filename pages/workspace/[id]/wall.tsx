@@ -371,8 +371,7 @@ const Wall: pageWithLayout<pageProps> = (props) => {
           <div className="flex items-start gap-4">
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center ${getRandomBg(
-                login.userId.toString(),
-                login.username
+                login.userId.toString()
               )}`}
             >
               <img
@@ -490,8 +489,7 @@ const Wall: pageWithLayout<pageProps> = (props) => {
               <div className="flex items-start gap-4">
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center ${getRandomBg(
-                    post.author.userid,
-                    post.author.username
+                    post.author.userid
                   )}`}
                 >
                   <img
