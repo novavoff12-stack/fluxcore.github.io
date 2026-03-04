@@ -452,7 +452,7 @@ const Sidebar: NextPage = () => {
                         </span>
                       )}
                       {section.name === "Staff" && pendingNoticesCount > 0 && (
-                        <span className="absolute -top-1 right-0 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center pointer-events-none">
+                        <span className="absolute -top-1 right-0 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center pointer-events-none">
                           {pendingNoticesCount > 9 ? '9+' : pendingNoticesCount}
                         </span>
                       )}

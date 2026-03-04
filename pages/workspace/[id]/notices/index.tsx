@@ -489,7 +489,7 @@ const Notices: pageWithLayout<NoticesPageProps> = ({
                 <IconUsers className="w-4 h-4" />
                 <span>Manage Notices</span>
                 {pendingNotices.length > 0 && (
-                  <span className="ml-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-500 text-white">
+                  <span className="ml-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-red-500 text-white">
                     {pendingNotices.length}
                   </span>
                 )}

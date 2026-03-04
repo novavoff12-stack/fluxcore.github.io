@@ -131,6 +131,7 @@ const workspace: LayoutProps = ({ children }) => {
 	const [localViews, setLocalViews] = useState<Array<{id: string; name: string; color?: string; icon?: string}>>([]);
 	const [savedViewsLoaded, setSavedViewsLoaded] = useState(false);
 	const [pendingPolicyCount, setPendingPolicyCount] = useState(0);
+	const [pendingNoticesCount, setPendingNoticesCount] = useState(0);
 	const [apiKeyAlertType, setApiKeyAlertType] = useState<"none" | "missing" | "invalid">("none");
 
 	const useTheme = (groupTheme: string) => {
@@ -246,6 +247,24 @@ const workspace: LayoutProps = ({ children }) => {
 				.catch(() => setPendingPolicyCount(0));
 		}
 	}, [router.query.id, workspace.settings?.policiesEnabled]);
+
+	useEffect(() => {
+		if (router.query.id && workspace.settings?.noticesEnabled) {
+			const canApprove = workspace.yourPermission?.includes("approve_notices") ||
+				workspace.yourPermission?.includes("manage_notices") ||
+				workspace.isAdmin;
+			if (canApprove) {
+				fetch(`/api/workspace/${router.query.id}/activity/notices/count`)
+					.then(res => res.json())
+					.then(data => {
+						if (data.success) {
+							setPendingNoticesCount(data.count || 0);
+						}
+					})
+					.catch(() => setPendingNoticesCount(0));
+			}
+		}
+	}, [router.query.id, workspace.settings?.noticesEnabled, workspace.yourPermission, workspace.isAdmin]);
 
 	useEffect(() => {
 		const handleSavedViewsChanged = () => {
@@ -447,6 +466,7 @@ const workspace: LayoutProps = ({ children }) => {
 					href: `/workspace/${id}/notices`,
 					icon: Beach02Icon,
 					active: isOnNotices,
+					badge: pendingNoticesCount > 0 ? pendingNoticesCount : undefined,
 				});
 			}
 
@@ -617,7 +637,7 @@ const workspace: LayoutProps = ({ children }) => {
 		}
 
 		return null;
-	}, [router.asPath, router.query.id, router.query.section, savedViews, localViews, router, workspace.isAdmin, workspace.yourPermission, workspace.settings?.guidesEnabled, workspace.settings?.policiesEnabled, workspace.settings?.leaderboardEnabled, workspace.settings?.sessionsEnabled, deleteSavedView, pendingPolicyCount]);
+	}, [router.asPath, router.query.id, router.query.section, savedViews, localViews, router, workspace.isAdmin, workspace.yourPermission, workspace.settings?.guidesEnabled, workspace.settings?.policiesEnabled, workspace.settings?.leaderboardEnabled, workspace.settings?.sessionsEnabled, deleteSavedView, pendingPolicyCount, pendingNoticesCount]);
 
 	const showSecondarySidebar = !!getSecondarySidebar;
 	const workspaceBg = workspace && workspace.groupTheme ? "" : "bg-firefli";
