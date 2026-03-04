@@ -396,22 +396,32 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
     columnHelper.accessor("departments", {
       header: "Department",
       cell: (row) => {
-        const departments = row.getValue();
-        if (!departments || departments.length === 0) {
+        const userDepts = row.getValue();
+        if (!userDepts || userDepts.length === 0) {
           return <p className="dark:text-white text-zinc-400">-</p>;
         }
         return (
           <div className="flex flex-wrap gap-1">
-            {departments.slice(0, 2).map((dept: string, idx: number) => (
-              <span
-                key={idx}
-                className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
-              >
-                {dept}
-              </span>
-            ))}
-            {departments.length > 2 && (
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">+{departments.length - 2}</span>
+            {userDepts.slice(0, 2).map((dept: string, idx: number) => {
+              const deptInfo = departments.find((d) => d.name === dept);
+              const bgColor = deptInfo?.color || undefined;
+              return (
+                <span
+                  key={idx}
+                  className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap truncate max-w-[120px] ${
+                    bgColor
+                      ? "text-zinc-900"
+                      : "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+                  }`}
+                  style={bgColor ? { backgroundColor: bgColor } : undefined}
+                  title={dept}
+                >
+                  {dept}
+                </span>
+              );
+            })}
+            {userDepts.length > 2 && (
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">+{userDepts.length - 2}</span>
             )}
           </div>
         );
