@@ -403,7 +403,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                 const username = row.getValue().username;
                 if (username) {
                   navigator.clipboard.writeText(username);
-                  toast.success(`Copied "${username}"`);
+                  toast.success(`Copied to clipboard`);
                 }
               }}
             >
