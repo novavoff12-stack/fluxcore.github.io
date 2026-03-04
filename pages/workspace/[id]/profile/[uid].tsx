@@ -1064,11 +1064,6 @@ const Profile: pageWithLayout<pageProps> = ({
       : currentData;
 
   const refetchUserBook = async () => {
-    try {
-      router.replace(router.asPath, undefined, { scroll: false });
-    } catch (error) {
-      console.error("Error refetching userbook:", error);
-    }
   };
 
   const BG_COLORS = [

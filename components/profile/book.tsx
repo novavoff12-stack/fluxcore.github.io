@@ -186,7 +186,10 @@ const Book: FC<Props> = ({ userBook, onRefetch, logbookPermissions }) => {
         );
       }
 
-      router.reload();
+      if (response.data.log) {
+        setLocalBook((prev) => [response.data.log, ...prev]);
+      }
+      if (onRefetch) onRefetch();
     } catch (error: any) {
       console.error("Error adding note:", error);
       // log server response body for debugging
