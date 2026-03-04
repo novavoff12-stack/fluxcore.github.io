@@ -445,7 +445,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                   key={idx}
                   className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap truncate max-w-[120px] ${
                     bgColor
-                      ? "text-zinc-900"
+                      ? "text-zinc-900 dark:text-white"
                       : "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
                   }`}
                   style={bgColor ? { backgroundColor: bgColor } : undefined}
@@ -1796,6 +1796,16 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                         <div>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">Quota</p>
                           <p className="text-sm font-medium text-zinc-900 dark:text-white">{user.quota ? "✅" : "❌"}</p>
+                        </div>
+                      )}
+                      {columnVisibility.departments && (
+                        <div>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">Department</p>
+                          <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                            {Array.isArray(user.departments) && user.departments.length > 0
+                              ? user.departments.join(", ")
+                              : "—"}
+                          </p>
                         </div>
                       )}
                     </div>
