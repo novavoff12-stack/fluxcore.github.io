@@ -1187,6 +1187,51 @@ export async function checkGroupRoles(groupID: number) {
       }
 
       console.log(`[Refresh] Completed role cleanup for group ${groupID}`);
+      const orphanedMembers = await prisma.workspaceMember.findMany({
+        where: {
+          workspaceGroupId: groupID,
+          isAdmin: { not: true },
+          user: {
+            roles: {
+              none: {
+                workspaceGroupId: groupID,
+              },
+            },
+          },
+        },
+        select: {
+          userId: true,
+        },
+      });
+
+      if (orphanedMembers.length > 0) {
+        for (const member of orphanedMembers) {
+          try {
+            await prisma.departmentMember.deleteMany({
+              where: {
+                workspaceGroupId: groupID,
+                userId: member.userId,
+              },
+            });
+            await prisma.workspaceMember.delete({
+              where: {
+                workspaceGroupId_userId: {
+                  workspaceGroupId: groupID,
+                  userId: member.userId,
+                },
+              },
+            });
+          } catch (error) {
+            console.error(
+              `[Refresh] Failed to remove workspaceMember for user ${member.userId}:`,
+              error
+            );
+          }
+        }
+        console.log(
+          `[Refresh] Cleaned up ${orphanedMembers.length} workspaceMember entries`
+        );
+      }
     } catch (error) {
       console.error(
         `[Refresh] Error during role cleanup for group ${groupID}:`,
