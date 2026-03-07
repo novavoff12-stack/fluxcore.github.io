@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import clsx from "clsx";
-import { IconPlus, IconX, IconGripVertical } from "@tabler/icons-react";
+import { IconPlus, IconX } from "@tabler/icons-react";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { ComponentType, useState } from "react";
 import {
@@ -125,15 +125,6 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
 
     const itemContent = (
       <>
-        {draggable && (
-          <div
-            {...attributes}
-            {...listeners}
-            className="flex-shrink-0 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <IconGripVertical className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-          </div>
-        )}
         {item.icon && item.color ? (
           <span
             className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center"
@@ -181,6 +172,7 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
 
     const itemClassName = clsx(
       "group flex items-center gap-2.5 px-2.5 py-2 rounded-md cursor-pointer transition-all",
+      draggable && "cursor-grab active:cursor-grabbing",
       isActive
         ? "bg-[color:rgb(var(--group-theme)/0.1)] text-[color:rgb(var(--group-theme))]"
         : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700/50",
@@ -193,6 +185,7 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
           style={style}
           href={item.href}
           className={itemClassName}
+          {...(draggable ? { ...attributes, ...listeners } : {})}
         >
           {itemContent}
         </Link>
@@ -205,6 +198,7 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         style={style}
         className={itemClassName}
         onClick={() => handleItemClick(item)}
+        {...(draggable ? { ...attributes, ...listeners } : {})}
       >
         {itemContent}
       </div>
