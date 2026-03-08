@@ -259,14 +259,20 @@ export class RobloxCloudRankingAPI {
         return { success: false, error: "User rank not found in database" };
       }
       
-      const storedRankNumber = Number(userRank.rankId);
       const storedRoleId = userRank.roleId ? Number(userRank.roleId) : null;
+      const storedRankNumber = Number(userRank.rankId);
       
       console.log(`[Promote] User ${userId}: stored rankId=${storedRankNumber}, roleId=${storedRoleId}`);
-      const currentIdx = nonGuestRoles.findIndex(r => r.rank === storedRankNumber);
+      let currentIdx = -1;
+      if (storedRoleId) {
+        currentIdx = nonGuestRoles.findIndex(r => r.id === storedRoleId);
+      }
+      if (currentIdx === -1) {
+        currentIdx = nonGuestRoles.findIndex(r => r.rank === storedRankNumber);
+      }
       
       if (currentIdx === -1) {
-        return { success: false, error: `Current rank ${storedRankNumber} not found in non-guest roles` };
+        return { success: false, error: `Could not find current role. Stored roleId=${storedRoleId}, rankId=${storedRankNumber}` };
       }
       
       if (currentIdx >= nonGuestRoles.length - 1) {
@@ -274,7 +280,7 @@ export class RobloxCloudRankingAPI {
       }
       
       const nextRole = nonGuestRoles[currentIdx + 1];
-      console.log(`[Promote] Promoting from rank ${storedRankNumber} to ${nextRole.rank} (roleId: ${nextRole.id})`);
+      console.log(`[Promote] Promoting from rank ${nonGuestRoles[currentIdx].rank} to ${nextRole.rank} (roleId: ${nextRole.id})`);
       return this.setUserRole(userId, nextRole.id);
     } catch (error: any) {
       return { success: false, error: error.message || "Promotion failed" };
@@ -294,14 +300,20 @@ export class RobloxCloudRankingAPI {
         return { success: false, error: "User rank not found in database" };
       }
       
-      const storedRankNumber = Number(userRank.rankId);
       const storedRoleId = userRank.roleId ? Number(userRank.roleId) : null;
+      const storedRankNumber = Number(userRank.rankId);
       
       console.log(`[Demote] User ${userId}: stored rankId=${storedRankNumber}, roleId=${storedRoleId}`);
-      const currentIdx = nonGuestRoles.findIndex(r => r.rank === storedRankNumber);
+      let currentIdx = -1;
+      if (storedRoleId) {
+        currentIdx = nonGuestRoles.findIndex(r => r.id === storedRoleId);
+      }
+      if (currentIdx === -1) {
+        currentIdx = nonGuestRoles.findIndex(r => r.rank === storedRankNumber);
+      }
       
       if (currentIdx === -1) {
-        return { success: false, error: `Current rank ${storedRankNumber} not found in non-guest roles` };
+        return { success: false, error: `Could not find current role. Stored roleId=${storedRoleId}, rankId=${storedRankNumber}` };
       }
       
       if (currentIdx <= 0) {
@@ -309,7 +321,7 @@ export class RobloxCloudRankingAPI {
       }
 
       const prevRole = nonGuestRoles[currentIdx - 1];
-      console.log(`[Demote] Demoting from rank ${storedRankNumber} to ${prevRole.rank} (roleId: ${prevRole.id})`);
+      console.log(`[Demote] Demoting from rank ${nonGuestRoles[currentIdx].rank} to ${prevRole.rank} (roleId: ${prevRole.id})`);
       return this.setUserRole(userId, prevRole.id);
     } catch (error: any) {
       return { success: false, error: error.message || "Demotion failed" };
