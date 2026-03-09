@@ -7,6 +7,8 @@ import { IconLogout, IconChevronDown, IconPlus, IconCheck, IconHome } from "@tab
 import axios from "axios";
 import { Fragment } from "react";
 import ThemeToggle from "./ThemeToggle";
+import VerifiedBadge from "./partners";
+import { usePartners } from "@/hooks/usePartners";
 
 
 const BG_COLORS = [
@@ -44,6 +46,7 @@ const Topbar: NextPage = () => {
 	const [, setCreateWorkspaceModal] = useRecoilState(createWorkspaceModalState);
 	const router = useRouter();
 	const isInWorkspace = router.pathname.startsWith('/workspace/');
+	const { partnerIds } = usePartners();
 
 	async function logout() {
 		await axios.post("/api/auth/logout");
@@ -92,6 +95,7 @@ const Topbar: NextPage = () => {
 										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 max-w-[120px] truncate">
 											{workspace.groupName}
 										</span>
+										{partnerIds.includes(workspace.groupId) && <VerifiedBadge className="w-3.5 h-3.5" />}
 										<IconChevronDown className="h-3 w-3 text-zinc-500 dark:text-zinc-400" />
 									</Listbox.Button>
 									
@@ -124,8 +128,7 @@ const Topbar: NextPage = () => {
 																	alt=""
 																	className="w-6 h-6 rounded object-cover"
 																/>
-																<span className="flex-1 truncate text-sm text-zinc-700 dark:text-white">{ws.groupName}</span>
-																{workspace.groupId === ws.groupId && <IconCheck className="w-4 h-4 text-primary" />}
+																<span className="flex-1 truncate text-sm text-zinc-700 dark:text-white">{ws.groupName}</span>														{partnerIds.includes(ws.groupId) && <VerifiedBadge className="w-3.5 h-3.5" />}																{workspace.groupId === ws.groupId && <IconCheck className="w-4 h-4 text-primary" />}
 															</Listbox.Option>
 														))
 												) : (

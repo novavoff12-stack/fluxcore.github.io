@@ -20,6 +20,8 @@ import {
   IconBuildingSkyscraper,
 } from "@tabler/icons-react";
 import { createWorkspaceModalState } from "@/state";
+import VerifiedBadge from "@/components/partners";
+import { usePartners } from "@/hooks/usePartners";
 
 const Home: NextPage = () => {
   const [login, setLogin] = useRecoilState(loginState);
@@ -28,6 +30,7 @@ const Home: NextPage = () => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useRecoilState(createWorkspaceModalState);
   const canCreateWorkspace = login.canMakeWorkspace;
+  const { partnerIds } = usePartners();
 
   const gotoWorkspace = (id: number) => {
     localStorage.setItem("lastWorkspace", id.toString());
@@ -190,10 +193,13 @@ const Home: NextPage = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-5">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-white drop-shadow-lg">
-                          {workspace.groupName}
-                        </h3>
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 transition-all duration-300 group-hover:bg-white/30 group-hover:scale-110">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          <h3 className="text-xl font-bold text-white drop-shadow-lg truncate">
+                            {workspace.groupName}
+                          </h3>
+                          {partnerIds.includes(workspace.groupId) && <VerifiedBadge className="w-5 h-5" />}
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 transition-all duration-300 group-hover:bg-white/30 group-hover:scale-110 flex-shrink-0">
                           <IconChevronRight className="h-5 w-5 text-white" />
                         </div>
                       </div>
